@@ -287,6 +287,7 @@ func (c *Certificate) Create(caId int64, commonName, orgUnit, orgName, locality,
 		{"O", orgName},
 		{"OU", orgUnit},
 		{"ST", stateCode},
+		{"ca_id", caId},
 	}
 
 	for index, san := range alt {
@@ -322,7 +323,7 @@ func (c *Certificate) Get(certId int64, what string) (result *string, err error)
 		Pem    string `json:"pem"`
 		Pkcs12 string `json:"pkcs12"`
 	}
-	res, err := c.session.makeCall("cert/details", []*fieldValues{{"cert_id", certId}, {"what", what}}, &pemInfo{})
+	res, err := c.session.makeCall("cert/get", []*fieldValues{{"cert_id", certId}, {"what", what}}, &pemInfo{})
 	if err != nil {
 		return
 	}
