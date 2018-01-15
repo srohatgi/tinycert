@@ -7,7 +7,7 @@ import (
 	"github.com/srohatgi/tinycert"
 )
 
-func Test_MainFlow(t *testing.T) {
+func Test_CA(t *testing.T) {
 	sess := tinycert.NewSession()
 
 	err := sess.Connect()
