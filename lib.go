@@ -139,11 +139,52 @@ func NewCA(session *Session) *CA {
 }
 
 func (ca *CA) List() (items []*CAListItem, err error) {
-	res, err := ca.session.makeCall("/ca/list", []*fieldValues{}, &[]*CAListItem{})
+	res, err := ca.session.makeCall("ca/list", []*fieldValues{}, &[]*CAListItem{})
 	if err != nil {
 		return
 	}
-	log.Printf("res = %v\n", res)
 	items = *res.(*[]*CAListItem)
+	return
+}
+
+func (ca *CA) Create(OrgName, Locality, StateCode, CountryCode, hashMethod string) (caId *int64, err error) {
+	list := []*fieldValues{
+		{"C", CountryCode},
+		{"L", Locality},
+		{"O", OrgName},
+		{"ST", StateCode},
+		{"hash_method", hashMethod},
+	}
+
+	type idResponse struct {
+		caId int64 `json:"ca_id"`
+	}
+
+	res, err := ca.session.makeCall("ca/new", list, &idResponse{})
+	if err != nil {
+		return
+	}
+	caId = &res.(*idResponse).caId
+	return
+}
+
+type CAInfo struct {
+	Id            int64  `json:"id"`
+	CountryCode   string `json:"C"`
+	StateCode     string `json:"ST"`
+	Locality      string `json:"L"`
+	OrgName       string `json:"O"`
+	OrgUnit       string `json:"OU"`
+	CommonName    string `json:"CN"`
+	Email         string `json:"E"`
+	HashAlgorithm string `json:"hash_alg"`
+}
+
+func (ca *CA) Details(caId int64) (caInfo *CAInfo, err error) {
+	res, err := ca.session.makeCall("ca/details", []*fieldValues{{"ca_id", caId}}, &CAInfo{})
+	if err != nil {
+		return
+	}
+	caInfo = res.(*CAInfo)
 	return
 }

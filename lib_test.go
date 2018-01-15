@@ -28,6 +28,11 @@ func Test_MainFlow(t *testing.T) {
 	}
 
 	for _, item := range res {
-		log.Printf("res: %v\n", item)
+		log.Printf("res: %+v\n", item)
+		info, err := ca.Details(item.Id)
+		if err != nil {
+			t.Fatal("unable to fetch details", err)
+		}
+		log.Printf("info = %+v\n", info)
 	}
 }
