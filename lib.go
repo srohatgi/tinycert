@@ -225,11 +225,40 @@ func (ca *CA) Delete(caId int64) (err error) {
 type CertificateStatus int
 
 const (
-	Expired CertificateStatus = 1
-	Good                      = 2
-	Revoked                   = 4
-	Hold                      = 8
+	Expired CertificateStatus = 1 << iota
+	Good
+	Revoked
+	Hold
 )
+
+type CertificatePart int
+
+const (
+	CertificateOnly CertificatePart = iota
+	CertificateWithChain
+	CertificateSigningRequest
+	PrivateKeyDecrypted
+	PrivateKeyEncrypted
+	KeyAndCertificate
+)
+
+func (cp CertificatePart) toString() string {
+	switch cp {
+	case CertificateOnly:
+		return "cert"
+	case CertificateWithChain:
+		return "chain"
+	case CertificateSigningRequest:
+		return "csr"
+	case PrivateKeyDecrypted:
+		return "key.dec"
+	case PrivateKeyEncrypted:
+		return "key.enc"
+	case KeyAndCertificate:
+		return "pkcs12"
+	}
+	return ""
+}
 
 func (cs CertificateStatus) toString() string {
 	switch cs {
