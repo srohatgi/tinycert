@@ -112,7 +112,7 @@ func (s *Session) makeCall(api string, list fvColl, response interface{}) (inter
 
 	vals += "&digest=" + url.QueryEscape(digest)
 
-	log.Printf("payload: %s\n", vals)
+	log.Printf("api: %s payload: %s\n", api, vals)
 
 	resp, err := s.clt.Post(s.serverPath+api, "application/x-www-form-urlencoded", strings.NewReader(vals))
 	if err != nil {
@@ -208,7 +208,7 @@ func (ca *CA) Get(caId int64) (pem *string, err error) {
 	type pemInfo struct {
 		Pem string `json:"pem"`
 	}
-	res, err := ca.session.makeCall("ca/details", []*fieldValues{{"ca_id", caId}, {"what", "cert"}}, &pemInfo{})
+	res, err := ca.session.makeCall("ca/get", []*fieldValues{{"ca_id", caId}, {"what", "cert"}}, &pemInfo{})
 	if err != nil {
 		return
 	}

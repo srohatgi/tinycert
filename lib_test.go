@@ -21,6 +21,25 @@ func Test_CA(t *testing.T) {
 
 	ca := tinycert.NewCA(sess)
 
+	caId, err := ca.Create("splunk", "ca", "ca", "US", "sha256")
+	if err != nil {
+		t.Fatal("unable to create ca", err)
+	}
+
+	t.Log("caid created: ", *caId)
+
+	pem, err := ca.Get(*caId)
+	if err != nil {
+		t.Fatal("error getting pem", err)
+	}
+
+	t.Log("pem recieved: ", *pem)
+
+	err = ca.Delete(*caId)
+	if err != nil {
+		t.Fatal("unable to delete ca", err)
+	}
+
 	// get list of ca
 	res, err := ca.List()
 	if err != nil {
