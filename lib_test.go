@@ -1,7 +1,6 @@
 package tinycert_test
 
 import (
-	"log"
 	"testing"
 
 	"github.com/srohatgi/tinycert"
@@ -35,11 +34,6 @@ func Test_CA(t *testing.T) {
 
 	t.Log("pem recieved: ", *pem)
 
-	err = ca.Delete(*caId)
-	if err != nil {
-		t.Fatal("unable to delete ca", err)
-	}
-
 	// get list of ca
 	res, err := ca.List()
 	if err != nil {
@@ -47,11 +41,17 @@ func Test_CA(t *testing.T) {
 	}
 
 	for _, item := range res {
-		log.Printf("res: %+v\n", item)
+		t.Log("res: ", item)
 		info, err := ca.Details(item.Id)
 		if err != nil {
 			t.Fatal("unable to fetch details", err)
 		}
-		log.Printf("info = %+v\n", info)
+		t.Log("info = ", info)
 	}
+
+	err = ca.Delete(*caId)
+	if err != nil {
+		t.Fatal("unable to delete ca", err)
+	}
+
 }

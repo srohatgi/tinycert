@@ -22,16 +22,26 @@ type Session struct {
 	serverPath string
 	clt        *http.Client
 	token      *string
+	debug      bool
+	logger     func(format string, args ...interface{})
 }
 
 func NewSession() *Session {
-	return &Session{
+	s := &Session{
 		serverPath: "https://www.tinycert.org/api/v1/",
 		email:      os.Getenv("TINYCERT_EMAIL"),
 		passphrase: os.Getenv("TINYCERT_PASSWORD"),
 		apiKey:     os.Getenv("TINYCERT_APIKEY"),
 		clt:        &http.Client{},
 	}
+
+	s.logger = func(format string, args ...interface{}) {
+		if s.debug {
+			log.Printf(format+"\n", args...)
+		}
+	}
+
+	return s
 }
 
 func (s *Session) WithEmail(email string) *Session {
@@ -46,6 +56,12 @@ func (s *Session) WithPassphrase(passphrase string) *Session {
 
 func (s *Session) WithApiKey(apiKey string) *Session {
 	s.apiKey = apiKey
+	return s
+}
+
+func (s *Session) WithLogger(logfn func(format string, args ...interface{})) *Session {
+	s.debug = true
+	s.logger = logfn
 	return s
 }
 
@@ -112,11 +128,11 @@ func (s *Session) makeCall(api string, list fvColl, response interface{}) (inter
 
 	vals += "&digest=" + url.QueryEscape(digest)
 
-	log.Printf("api: %s payload: %s\n", api, vals)
+	s.logger("api: %s payload: %s", api, vals)
 
 	resp, err := s.clt.Post(s.serverPath+api, "application/x-www-form-urlencoded", strings.NewReader(vals))
 	if err != nil {
-		log.Printf("error calling tinycert", err)
+		s.logger("error calling tinycert", err)
 		return nil, err
 	}
 
@@ -127,11 +143,11 @@ func (s *Session) makeCall(api string, list fvColl, response interface{}) (inter
 		return nil, fmt.Errorf("error from server code = %d, response = %s", resp.StatusCode, buf.String())
 	}
 
-	log.Printf("response from server: %s\n", buf.String())
+	s.logger("response from server: %s", buf.String())
 
 	err = json.Unmarshal(buf.Bytes(), response)
 	if err != nil {
-		log.Printf("unable to unmarshal struct")
+		s.logger("unable to unmarshal struct")
 		return nil, err
 	}
 
