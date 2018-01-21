@@ -34,6 +34,22 @@ func Test_CA(t *testing.T) {
 
 	t.Log("pem recieved: ", *pem)
 
+	cert := tinycert.NewCertificate(sess)
+
+	newCertId, err := cert.Create(*caId, "hello", "ou", "oname", "sj", "CA", "US", nil)
+	if err != nil {
+		t.Fatal("error building certificate", err)
+	}
+
+	t.Log("certificate id: ", *newCertId)
+
+	certStr, err := cert.Get(*newCertId, tinycert.KeyAndCertificate)
+	if err != nil {
+		t.Fatal("unable to fetch new certificate", err)
+	}
+
+	t.Log("new cert: ", *certStr)
+
 	// get list of ca
 	res, err := ca.List()
 	if err != nil {

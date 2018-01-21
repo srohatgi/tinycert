@@ -363,12 +363,12 @@ func (c *Certificate) Create(caId int64, commonName, orgUnit, orgName, locality,
 	return
 }
 
-func (c *Certificate) Get(certId int64, what string) (result *string, err error) {
+func (c *Certificate) Get(certId int64, what CertificatePart) (result *string, err error) {
 	type pemInfo struct {
 		Pem    string `json:"pem"`
 		Pkcs12 string `json:"pkcs12"`
 	}
-	res, err := c.session.makeCall("cert/get", []*fieldValues{{"cert_id", certId}, {"what", what}}, &pemInfo{})
+	res, err := c.session.makeCall("cert/get", []*fieldValues{{"cert_id", certId}, {"what", what.toString()}}, &pemInfo{})
 	if err != nil {
 		return
 	}
